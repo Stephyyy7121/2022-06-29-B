@@ -26,7 +26,7 @@ public class ItunesDAO {
 			ResultSet res = st.executeQuery();
 
 			while (res.next()) {
-				result.add(new Album(res.getInt("AlbumId"), res.getString("Title")));
+				result.add(new Album(res.getInt("AlbumId"), res.getString("Title"), res.getInt("totSec")));
 			}
 			conn.close();
 		} catch (SQLException e) {
@@ -136,6 +136,43 @@ public class ItunesDAO {
 			e.printStackTrace();
 			throw new RuntimeException("SQL Error");
 		}
+		return result;
+	}
+	
+	
+	//PARTE 1, PUNTO A
+
+	public List<Album> getFilteredAlbum(int n) {
+		// TODO Auto-generated method stub
+		
+		String sql = "SELECT a.AlbumId, a.Title, SUM(t.Milliseconds/1000) AS totSec "
+				+ "FROM album a, track t "
+				+ "WHERE a.AlbumId = t.AlbumId "
+				+ "GROUP BY a.AlbumId, a.Title "
+				+ "HAVING totSec > ?";
+		List<Album> result = new ArrayList<Album>();
+		
+		Connection conn = DBConnect.getConnection();
+		
+		try {
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setInt(1, n);
+			ResultSet res = st.executeQuery();
+			
+			while (res.next()) {
+				
+				result.add(new Album(res.getInt("AlbumId"), res.getString("Title"), res.getInt("totSec")));
+			}
+			
+			conn.close();
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.out.println("Errore nell'esecuzione");
+			return null;
+		}
+		
 		return result;
 	}
 	

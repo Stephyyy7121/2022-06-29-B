@@ -5,7 +5,11 @@
 package it.polito.tdp.itunes;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
+
+import it.polito.tdp.itunes.model.Album;
+import it.polito.tdp.itunes.model.BilancioAlbum;
 import it.polito.tdp.itunes.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -34,10 +38,10 @@ public class FXMLController {
     private Button btnPercorso; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbA1"
-    private ComboBox<?> cmbA1; // Value injected by FXMLLoader
+    private ComboBox<Album> cmbA1; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbA2"
-    private ComboBox<?> cmbA2; // Value injected by FXMLLoader
+    private ComboBox<Album> cmbA2; // Value injected by FXMLLoader
 
     @FXML // fx:id="txtN"
     private TextField txtN; // Value injected by FXMLLoader
@@ -51,6 +55,21 @@ public class FXMLController {
     @FXML
     void doCalcolaAdiacenze(ActionEvent event) {
     	
+    	//input = Album da selezionare nella tendina
+    	Album a = cmbA1.getValue();
+    	
+    	//controllare che non sia vuoto
+    	if (a == null) {
+    		txtResult.setText("Inserire un valore");
+    		return;
+    	}
+    	
+    	List<BilancioAlbum> result = model.getAdiacenti(a);
+    	
+    	for (BilancioAlbum ba : result) {
+    		txtResult.appendText(ba + "\n");
+    	}
+    	
     }
 
     @FXML
@@ -60,6 +79,38 @@ public class FXMLController {
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
+    	
+    	String input = txtN.getText();
+    	
+    	//controlli input
+    	
+    	//vuoto 
+    	if (input.isEmpty()) {
+    		txtResult.setText("Inserire un valore");
+    	}
+    	//non numero intero
+    	try {
+    		Integer inputNum = Integer.parseInt(input);
+    		
+    		//invocarfe il metodo buildGraph
+    		model.buildGraph(inputNum);
+    		int numVert = model.getVertices();
+    		int numEdge = model.getEdge();
+    		
+    		txtResult.setText("Grafo Creato! \n");
+    		txtResult.appendText("#Vertici: " + numVert + "\n");
+    		txtResult.appendText("#Archi: " + numEdge + "\n");
+    		
+    	}catch(NumberFormatException e ) {
+    		txtResult.setText("Inserito valore non intero");
+    		e.getStackTrace();
+    		return;
+    	}
+    	
+    	//settare le comboBox
+    	cmbA1.getItems().setAll(model.getVerticesSet());
+    	cmbA2.getItems().setAll(model.getVerticesSet());
+    	
     	
     }
 
